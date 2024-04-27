@@ -1,0 +1,931 @@
+Skip to content
+Navigation Menu
+DianaSemenova
+/
+attestation-project---search-js
+
+Type / to search
+
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security
+Insights
+Users list #5
+ Merged
+DianaSemenova merged 11 commits into main from Users-list on Feb 18
++563 −59 
+ Conversation 0
+ Commits 11
+ Checks 0
+ Files changed 24
+ Merged
+Users list
+#5
+ 
+File filter 
+ 
+0 / 24 files viewed
+Filter changed files
+ 10 changes: 10 additions & 0 deletions10  
+package-lock.json
+Viewed
+Some generated files are not rendered by default. Learn more about how customized files appear on GitHub.
+
+  1 change: 1 addition & 0 deletions1  
+package.json
+Viewed
+@@ -12,6 +12,7 @@
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.0",
+    "react-scripts": "5.0.1",
+    "react-spinners": "^0.13.8",
+    "styled-components": "^6.1.8",
+    "web-vitals": "^2.1.4"
+  },
+  2 changes: 1 addition & 1 deletion2  
+src/components/FilterBlock/Filter/Filter.jsx
+Viewed
+@@ -16,7 +16,7 @@ export default function Filter() {
+    );
+
+    useEffect(() => {
+        dispatch(setParamsSort({ currentSortValue }));
+        dispatch(setParamsSort(currentSortValue));
+    }, [currentSortValue, dispatch]);
+
+    return (
+  1 change: 0 additions & 1 deletion1  
+src/components/FilterBlock/Filter/filter.style.js
+Viewed
+@@ -12,7 +12,6 @@ export const FilterDiv = styled.div`
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 25px 0px;
+    justify-content: center;
+`;
+export const FilterTitle = styled.div`
+  16 changes: 14 additions & 2 deletions16  
+src/components/Header/Header.jsx
+Viewed
+@@ -4,7 +4,13 @@ import * as S from './header.style';
+import Button from '../UI/Button/Button';
+import SearchSvg from '../UI/Icons/Search/SearchSvg';
+import Input from '../UI/Input/Input';
+import { setParamsLogin } from '../../store/slices/users';
+import {
+    setParamsLogin,
+    setPage,
+    setParamsSort,
+    setCurrentSortValue,
+    setPerPage,
+} from '../../store/slices/users';
+
+export default function Header() {
+    const dispatch = useDispatch();
+@@ -28,7 +34,13 @@ export default function Header() {
+                />
+                <Button
+                    classes="search"
+                    onClick={() => dispatch(setParamsLogin(searchText))}
+                    onClick={() => {
+                        dispatch(setParamsLogin(searchText));
+                        dispatch(setPage(1));
+                        dispatch(setPerPage(10));
+                        dispatch(setParamsSort('По возрастанию'));
+                        dispatch(setCurrentSortValue('По возрастанию'));
+                    }}
+                >
+                    <SearchSvg />
+                </Button>
+ 14 changes: 9 additions & 5 deletions14  
+src/components/Header/header.style.js
+Viewed
+@@ -1,20 +1,24 @@
+import styled from 'styled-components';
+
+export const Header = styled.div`
+export const Header = styled.header`
+    position: sticky;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    z-index: 999;
+    background-color: #271a58;
+`;
+
+export const Title = styled.h1`
+    color: #fff;
+    font-size: 40px;
+    font-size: 30px;
+    padding-top: 10px;
+    @media (max-width: 703px) {
+        font-size: 30px;
+    }
+    @media (max-width: 540px) {
+        font-size: 20px;
+    }
+ 115 changes: 115 additions & 0 deletions115  
+src/components/Pagination/Pagination.jsx
+Viewed
+@@ -0,0 +1,115 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import * as S from './pagination.style';
+import Button from '../UI/Button/Button';
+import ArrowForwardSvg from '../UI/Icons/Arrow/ArrowSvg';
+import {
+    setIsOpenDataAmount,
+    setPage,
+    setPerPage,
+    setStartIndex,
+    setEndIndex,
+} from '../../store/slices/users';
+
+export default function Pagination() {
+    const dispatch = useDispatch();
+    const {
+        isOpenDataAmount,
+        numberPages,
+        page,
+        totalAmountUserData,
+        perPage,
+        arrAmountData,
+        startIndex,
+        endIndex,
+    } = useSelector((state) => state.users.pagination);
+
+    useEffect(() => {
+        dispatch(setStartIndex({ numberPages, page }));
+        dispatch(setEndIndex({ numberPages, page }));
+    }, [numberPages, page, dispatch]);
+
+    const handlePageClick = (number) => {
+        if (number !== page) {
+            dispatch(setPage(number));
+        }
+    };
+
+    const handleNextPage = () => {
+        if (page < numberPages.length) {
+            dispatch(setPage(page + 1));
+        }
+    };
+    const handleGoToFirstPage = () => {
+        if (page !== 1) {
+            dispatch(setPage(1));
+        }
+    };
+
+    return (
+        <S.Pagination $active={totalAmountUserData <= 10}>
+            <S.NumberPageDiv>
+                {page !== 1 && numberPages.length > 5 && (
+                    <>
+                        <Button
+                            classes="dataAmount"
+                            onClick={handleGoToFirstPage}
+                        >
+                            В начало
+                        </Button>
+                        <S.Point> ... </S.Point>
+                    </>
+                )}
+
+                {numberPages.slice(startIndex, endIndex).map((number) => (
+                    <Button
+                        key={number}
+                        classes="pagination"
+                        isActive={number === page}
+                        onClick={() => handlePageClick(number)}
+                    >
+                        {number}
+                    </Button>
+                ))}
+                {numberPages.length > 5 && page + 4 < numberPages.length && (
+                    <S.Point> ... </S.Point>
+                )}
+                {numberPages.length > 5 && page + 4 < numberPages.length && (
+                    <Button
+                        classes="pagination"
+                        onClick={() => handleNextPage()}
+                    >
+                        <ArrowForwardSvg />
+                    </Button>
+                )}
+            </S.NumberPageDiv>
+
+            <S.DataAmount
+                onClick={(e) => {
+                    e.stopPropagation();
+                    dispatch(setIsOpenDataAmount(!isOpenDataAmount));
+                }}
+            >
+                {totalAmountUserData > 10 && (
+                    <Button classes="dataAmount" isActive={isOpenDataAmount}>
+                        Показывать по: {perPage}
+                    </Button>
+                )}
+
+                {isOpenDataAmount && (
+                    <S.DataAmountUl>
+                        {arrAmountData.map((item) => (
+                            <S.Li
+                                key={item}
+                                $active={item === perPage}
+                                onClick={() => dispatch(setPerPage(item))}
+                            >
+                                по: {item}
+                            </S.Li>
+                        ))}
+                    </S.DataAmountUl>
+                )}
+            </S.DataAmount>
+        </S.Pagination>
+    );
+}
+ 72 changes: 72 additions & 0 deletions72  
+src/components/Pagination/pagination.style.js
+Viewed
+@@ -0,0 +1,72 @@
+import styled from 'styled-components';
+
+export const Pagination = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: ${(props) => (props.$active ? 'center' : 'flex-start')};
+    align-items: center;
+    margin-top: 20px;
+    padding: 0px 10px;
+    max-width: 800px;
+    color: #ffffff;
+    border-radius: 6px;
+    background-color: #dbdbdb;
+    border: 1px solid #ffffff;
+    position: relative;
+    @media (max-width: 703px) {
+        width: 100%;
+        gap: 0px;
+    }
+`;
+
+export const NumberPageDiv = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+`;
+
+export const DataAmount = styled.div`
+    position: absolute;
+    right: 10px;
+`;
+
+export const DataAmountUl = styled.ul`
+    position: absolute;
+    bottom: 30px;
+    right: 0;
+    padding: 10px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid #ffffff;
+    background: #05002c;
+    color: #ffffff;
+    border-color: white;
+    transition: all 0.3s;
+`;
+
+export const Li = styled.li`
+    color: ${(props) => (props.$active ? '#db61ffab' : 'white')};
+    cursor: pointer;
+    transition: all 0.2s;
+    &:hover {
+        color: #db61ffab;
+        text-decoration-line: underline;
+    }
+    &:active {
+        color: #db61ffab;
+        text-decoration-line: underline;
+    }
+`;
+export const Point = styled.div`
+    display: flex;
+    align-items: center;
+    color: black;
+    padding: 0px 10px 0px 0px;
+    font-size: 16px;
+`;
+  62 changes: 61 additions & 1 deletion62  
+src/components/UI/Button/button.style.js
+Viewed
+@@ -71,6 +71,66 @@ const buttons = {
+            color: #db61ffab;
+        }
+    `,
+    user: css`
+        border: none;
+        color: #ffffff;
+        background-color: transparent;
+        padding: 5px 15px;
+        border-radius: 6px;
+        font-size: 14px;
+        transition: all 0.3s;
+        &:hover {
+            background-color: #4d3c8d;
+            border: 1px solid #ffffff;
+        }
+        &:active {
+            background-color: #4d3c8d;
+            border: 1px solid #ffffff;
+        }
+    `,
+
+    pagination: css`
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        border: ${(props) => (props.$active ? ' 1px solid #ffffff' : 'none')};
+        background: ${(props) => (props.$active ? '#8f77c5' : 'none')};
+        color: ${(props) => (props.$active ? '#ffffff' : 'black')};
+        transition: all 0.3s;
+        &:hover svg path {
+            fill: #fff;
+        }
+        &:hover {
+            background: #8f77c5;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+        &:active {
+            background: #8f77c5;
+            color: #ffffff;
+            border: 1px solid #ffffff;
+        }
+    `,
+    dataAmount: css`
+        border-radius: 6px;
+        padding: 5px;
+        background: ${(props) => (props.$active ? '#05002c' : '#8f77c5')};
+        color: #ffffff;
+        border: 2px solid #ffffff;
+        transition: background 0.6s;
+        &:hover {
+            background: #05002c;
+        }
+        &:active {
+            background: #05002c;
+        }
+    `,
+};
+
+const btnMixin = (params) => {
+@@ -80,4 +140,4 @@ const btnMixin = (params) => {
+export const Btn = styled.button`
+    ${(props) => btnMixin(props.$style)};
+`;
+// background: none;
+
+ 16 changes: 16 additions & 0 deletions16  
+src/components/UI/Icons/Arrow/ArrowSvg.jsx
+Viewed
+@@ -0,0 +1,16 @@
+export default function ArrowForwardSvg() {
+    return (
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 15"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path
+                d="M12.7402 6.04583C13.1291 5.65369 13.7622 5.65107 14.1544 6.03997L20.2042 12.0399C20.3935 12.2276 20.5 12.4832 20.5 12.7499C20.5 13.0165 20.3935 13.2721 20.2042 13.4599L14.1544 19.46C13.7623 19.8489 13.1291 19.8463 12.7402 19.4542C12.3513 19.0621 12.3539 18.4289 12.746 18.04L17.0716 13.7499H4.5C3.94772 13.7499 3.5 13.3022 3.5 12.7499C3.5 12.1976 3.94772 11.7499 4.5 11.7499H17.0716L12.746 7.46003C12.3539 7.07113 12.3513 6.43797 12.7402 6.04583Z"
+                fill="black"
+            />
+        </svg>
+    );
+}
+ 3 changes: 1 addition & 2 deletions3  
+src/components/UI/Icons/Close/closeSvg.style.js
+Viewed
+@@ -1,8 +1,7 @@
+import styled from 'styled-components';
+
+export const CloseSvg = styled.svg`
+    &:hover {
+    &:hover path {
+        fill: #564499;
+        cursor: pointer;
+    }
+`;
+ 16 changes: 16 additions & 0 deletions16  
+src/components/UsersBlock/Users/Users.jsx
+Viewed
+@@ -0,0 +1,16 @@
+import * as S from './users.style';
+import UsersItem from '../UsersItem/UsersItem';
+import Pagination from '../../Pagination/Pagination';
+
+export default function UsersList({ data }) {
+    return (
+        <S.BlockUsers>
+            <S.Ul>
+                {data?.items.map((item) => (
+                    <UsersItem key={Math.random()} item={item} />
+                ))}
+                <Pagination />
+            </S.Ul>
+        </S.BlockUsers>
+    );
+}
+ 19 changes: 19 additions & 0 deletions19  
+src/components/UsersBlock/Users/users.style.js
+Viewed
+@@ -0,0 +1,19 @@
+import styled from 'styled-components';
+
+export const BlockUsers = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    @media (max-width: 703px) {
+        align-items: stretch;
+    }
+`;
+export const Ul = styled.ul`
+    padding: 20px 50px;
+    border-radius: 12px;
+    @media (max-width: 800px) {
+        padding: 20px 0px;
+    }
+`;
+ 11 changes: 11 additions & 0 deletions11  
+src/components/UsersBlock/UsersItem/UsersItem.jsx
+Viewed
+@@ -0,0 +1,11 @@
+import * as S from './userItem.style';
+import Button from '../../UI/Button/Button';
+
+export default function UsersItem({ item }) {
+    return (
+        <S.Li>
+            <div>Логин: {item.login}</div>
+            <Button classes="user">Подробнее о пользователе</Button>
+        </S.Li>
+    );
+}
+ 20 changes: 20 additions & 0 deletions20  
+src/components/UsersBlock/UsersItem/userItem.style.js
+Viewed
+@@ -0,0 +1,20 @@
+import styled from 'styled-components';
+
+export const Li = styled.li`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 100px;
+    padding: 10px 25px;
+    max-width: 800px;
+    border-radius: 12px;
+    color: #ffffff;
+    background-color: transparent;
+    border: 1px solid #ffffff;
+    @media (max-width: 703px) {
+        width: 100%;
+        gap: 0px;
+    }
+`;
+  7 changes: 5 additions & 2 deletions7  
+src/pages/Layout/Layout.jsx
+Viewed
+@@ -2,18 +2,21 @@ import { Outlet } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import * as S from './layout.style';
+import Header from '../../components/Header/Header';
+import { setIsOpenSort } from '../../store/slices/users';
+import { setIsOpenSort, setIsOpenDataAmount } from '../../store/slices/users';
+
+export default function Layout() {
+    const dispatch = useDispatch();
+    const isOpenSort = useSelector((state) => state.users.isOpenSort);
+    const { isOpenSort, pagination } = useSelector((state) => state.users);
+
+    return (
+        <S.Wrapper
+            onClick={() => {
+                if (isOpenSort) {
+                    dispatch(setIsOpenSort(false));
+                }
+                if (pagination.isOpenDataAmount) {
+                    dispatch(setIsOpenDataAmount(false));
+                }
+            }}
+        >
+            <S.Container>
+  1 change: 1 addition & 0 deletions1  
+src/pages/Layout/layout.style.js
+Viewed
+@@ -14,4 +14,5 @@ export const Wrapper = styled.div`
+export const Container = styled.div`
+    width: 100%;
+    margin: 0 auto;
+`;
+ 55 changes: 36 additions & 19 deletions55  
+src/pages/Main/Main.jsx
+Viewed
+@@ -1,55 +1,72 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import * as S from './main.style';
+import Filter from '../../components/FilterBlock/Filter/Filter';
+import SearchNoResultSvg from '../../components/UI/Icons/Search/SearchNoResultSvg';
+import UsersList from '../../components/UsersBlock/Users/Users';
+import { useLazyGetUsersQuery } from '../../store/services/users';
+import { getTextResult } from '../../utils/helpers';
+import { getTextResult, handleClearCacheUsers } from '../../utils/helpers';
+import { fetchDataUsers } from '../../utils/fetchDataUser';
+
+export default function MainPage() {
+    const { paramsLogin, paramsSort, perPage, page } = useSelector(
+    const dispatch = useDispatch();
+    const { paramsLogin, paramsSort, pagination } = useSelector(
+        (state) => state.users,
+    );
+    const [getUsers, { isLoading, isError, data }] = useLazyGetUsersQuery();
+    const [textError, setTextError] = useState('');
+
+    const fetchDataUsers = async () => {
+        try {
+            await getUsers({
+    useEffect(() => {
+        if (
+            paramsLogin &&
+            paramsSort &&
+            pagination.perPage &&
+            pagination.page
+        ) {
+            fetchDataUsers(
+                paramsLogin,
+                paramsSort,
+                perPage,
+                page,
+            });
+        } catch (error) {
+            setTextError(error.message);
+                pagination,
+                getUsers,
+                setTextError,
+                dispatch,
+            );
+        }
+    };
+    }, [paramsLogin, paramsSort, pagination.perPage, pagination.page]);
+
+    useEffect(() => {
+        if (paramsLogin && paramsSort && perPage && page) {
+            fetchDataUsers();
+        if (!paramsLogin && (isError || data)) {
+            handleClearCacheUsers(dispatch);
+        }
+    }, [paramsLogin, paramsSort, perPage, page]);
+    }, [paramsLogin, isError]);
+
+    return (
+        <S.App>
+            {data?.items.length > 0 && paramsLogin && <Filter />}
+            {(!data || data?.items?.length === 0 || !paramsLogin) && (
+            {(!data ||
+                data?.items?.length === 0 ||
+                data?.items?.length > 0) && (
+                <S.NoResultBlock>
+                    <S.TextResult>
+                    <S.TextResult $active={data?.items?.length > 0}>
+                        {getTextResult(
+                            isError,
+                            isLoading,
+                            data,
+                            paramsLogin,
+                            textError,
+                        )}
+                        <SearchNoResultSvg />
+                        {!isLoading && !data?.items?.length > 0 && (
+                            <SearchNoResultSvg />
+                        )}
+                    </S.TextResult>
+                </S.NoResultBlock>
+            )}
+
+            {data?.items.length > 1 && paramsLogin && !isError && <Filter />}
+
+            {paramsLogin && data?.items.length > 0 && !isError && (
+                <UsersList data={data} isError={isError} />
+            )}
+        </S.App>
+    );
+}
+  14 changes: 7 additions & 7 deletions14  
+src/pages/Main/main.style.js
+Viewed
+@@ -11,17 +11,17 @@ export const NoResultBlock = styled.div`
+    justify-content: center;
+`;
+export const TextResult = styled.p`
+    font-size: 20px;
+    color: #fff;
+    line-height: 50px;
+    font-size: ${(props) => (props.$active ? '12px' : '20px')};
+    color: ${(props) => (props.$active ? '#b3adad' : ' #fff')};
+    line-height: ${(props) => (props.$active ? '40px' : ' 50px')};
+    max-width: 800px;
+    text-align: center;
+    @media (max-width: 540px) {
+        font-size: 18px;
+        font-size: ${(props) => (props.$active ? '12px' : '18px')};
+    }
+    @media (max-width: 370px) {
+        font-size: 14px;
+        line-height: 45px;
+    @media (max-width: 385px) {
+        font-size: ${(props) => (props.$active ? '12px' : '14px')};
+        line-height: ${(props) => (props.$active ? '20px' : ' 45px')};
+    }
+`;
+ 9 changes: 9 additions & 0 deletions9  
+src/store/services/baseApi.js
+Viewed
+@@ -0,0 +1,9 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const baseApi = createApi({
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'https://api.github.com',
+    }),
+    tagTypes: ['Users'],
+    endpoints: () => ({}),
+});
+ 12 changes: 3 additions & 9 deletions12  
+src/store/services/users.js
+Viewed
+@@ -1,16 +1,10 @@
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+export const usersQuery = createApi({
+    reducerPath: 'usersQuery',
+    baseQuery: fetchBaseQuery({
+        baseUrl: 'https://api.github.com',
+    }),
+    tagTypes: ['Users'],
+import { baseApi } from './baseApi';
+
+export const usersQuery = baseApi.injectEndpoints({
+    endpoints: (build) => ({
+        getUsers: build.query({
+            query: ({ paramsLogin, paramsSort, perPage, page }) =>
+                `search/users?q=${paramsLogin}&sort=repositories&order=${paramsSort}&per_page=${perPage}&page=${page}`,
+                `search/users?q=${paramsLogin}&sort=repositories&order=${paramsSort}${perPage && page ? `&per_page=${perPage}&page=${page}` : ''}`,
+        }),
+    }),
+});
+  79 changes: 72 additions & 7 deletions79  
+src/store/slices/users.js
+Viewed
+@@ -6,8 +6,16 @@ const initialState = {
+    currentSortValue: 'По возрастанию',
+    paramsLogin: '',
+    paramsSort: 'asc',
+    perPage: 10,
+    page: 1,
+    pagination: {
+        isOpenDataAmount: false,
+        totalAmountUserData: 0,
+        numberPages: [1],
+        perPage: 10,
+        page: 1,
+        arrAmountData: [],
+        startIndex: 0,
+        endIndex: 5,
+    },
+};
+
+export const usersSlice = createSlice({
+@@ -18,37 +26,94 @@ export const usersSlice = createSlice({
+        setIsOpenSort: (state, action) => {
+            state.isOpenSort = action.payload;
+        },
+        setIsOpenDataAmount: (state, action) => {
+            state.pagination.isOpenDataAmount = action.payload;
+        },
+        setCurrentSortValue: (state, action) => {
+            state.currentSortValue = action.payload;
+        },
+        setParamsLogin: (state, action) => {
+            state.paramsLogin = action.payload;
+        },
+        setParamsSort: (state, action) => {
+            const { currentSortValue } = action.payload;
+
+            if (currentSortValue === 'По возрастанию') {
+            if (action.payload === 'По возрастанию') {
+                state.paramsSort = 'asc';
+            } else {
+                state.paramsSort = 'desc';
+            }
+        },
+        setTotalAmountUserData: (state, action) => {
+            state.pagination.totalAmountUserData = action.payload;
+        },
+        setPerPage: (state, action) => {
+            state.perPage = action.payload;
+            state.pagination.perPage = action.payload;
+        },
+        setPage: (state, action) => {
+            state.page = action.payload;
+            state.pagination.page = action.payload;
+        },
+
+        setNumberPages: (state, action) => {
+            if (state.pagination.perPage && action.payload) {
+                const totalPages =
+                    action.payload > 1000
+                        ? Math.ceil(1000 / state.pagination.perPage)
+                        : Math.ceil(action.payload / state.pagination.perPage);
+
+                state.pagination.numberPages = [];
+
+                for (let i = 1; i <= totalPages; i += 1) {
+                    state.pagination.numberPages.push(i);
+                }
+            } else {
+                state.pagination.numberPages = [1];
+            }
+        },
+
+        setArrAmountData: (state, action) => {
+            if (action.payload < 25) {
+                state.pagination.arrAmountData = [10, 5];
+            } else if (action.payload < 50) {
+                state.pagination.arrAmountData = [25, 10, 5];
+            } else if (action.payload < 100) {
+                state.pagination.arrAmountData = [50, 25, 10, 5];
+            } else {
+                state.pagination.arrAmountData = [100, 50, 25, 10];
+            }
+        },
+        setStartIndex: (state, action) => {
+            const { numberPages, page } = action.payload;
+
+            state.pagination.startIndex =
+                numberPages.length <= 5
+                    ? 0
+                    : Math.max(
+                          page + 4 > numberPages.length
+                              ? numberPages.length - 5
+                              : page - 1,
+                          0,
+                      );
+        },
+        setEndIndex: (state, action) => {
+            const { numberPages, page } = action.payload;
+
+            state.pagination.endIndex = Math.min(page + 4, numberPages.length);
+        },
+    },
+});
+
+export const {
+    setIsOpenSort,
+    setIsOpenDataAmount,
+    setCurrentSortValue,
+    setParamsLogin,
+    setParamsSort,
+    setTotalAmountUserData,
+    setPerPage,
+    setPage,
+    setNumberPages,
+    setArrAmountData,
+    setStartIndex,
+    setEndIndex,
+} = usersSlice.actions;
+
+export default usersSlice.reducer;
+ 31 changes: 31 additions & 0 deletions31  
+src/utils/fetchDataUser.js
+Viewed
+@@ -0,0 +1,31 @@
+import {
+    setTotalAmountUserData,
+    setNumberPages,
+    setArrAmountData,
+} from '../store/slices/users';
+
+const fetchDataUsers = async (
+    paramsLogin,
+    paramsSort,
+    pagination,
+    getUsers,
+    setTextError,
+    dispatch,
+) => {
+    try {
+        const response = await getUsers({
+            paramsLogin,
+            paramsSort,
+            perPage: pagination?.perPage,
+            page: pagination?.page,
+        });
+
+        dispatch(setTotalAmountUserData(response.data?.total_count));
+        dispatch(setNumberPages(response.data?.total_count));
+        dispatch(setArrAmountData(response.data?.total_count));
+    } catch (error) {
+        setTextError(error.message);
+    }
+};
+
+export { fetchDataUsers };
+  36 changes: 33 additions & 3 deletions36  
+src/utils/helpers.js
+Viewed
+@@ -1,6 +1,16 @@
+import { FadeLoader } from 'react-spinners';
+import { baseApi } from '../store/services/baseApi';
+import {
+    setPage,
+    setParamsSort,
+    setCurrentSortValue,
+    setPerPage,
+    setTotalAmountUserData,
+} from '../store/slices/users';
+
+const getTextResult = (isError, isLoading, data, paramsLogin, textError) => {
+    if (isError) {
+        return 'Не удалось загрузить пользователей...';
+        return 'Не удалось загрузить пользователей... Пожалуйста, повторите попытку.';
+    }
+    if (textError) {
+        return textError;
+@@ -14,11 +24,31 @@ const getTextResult = (isError, isLoading, data, paramsLogin, textError) => {
+        if (paramsLogin && data?.items.length === 0) {
+            return `Пользователи по запросу «${paramsLogin}» не найдены.`;
+        }
+        if (paramsLogin) {
+            if (data?.total_count === 1) {
+                return `Найден ${data.total_count} пользователь.`;
+            }
+            if (data?.total_count > 1 && data?.total_count <= 1000) {
+                return `Найденo ${data.total_count} пользователей.`;
+            }
+            if (data?.total_count > 1000) {
+                return `Найденo ${data.total_count} пользователей. Отображаются первые 1000 записей.`;
+            }
+        }
+    }
+
+    if (!isError && isLoading) {
+        return `Загрузка...`;
+        return <FadeLoader color="#36d7b7" height={15} width={5} />;
+    }
+};
+
+export { getTextResult };
+const handleClearCacheUsers = (dispatch) => {
+    dispatch(baseApi.util.resetApiState());
+    dispatch(setPage(1));
+    dispatch(setParamsSort('По возрастанию'));
+    dispatch(setCurrentSortValue('По возрастанию'));
+    dispatch(setPerPage(10));
+    dispatch(setTotalAmountUserData(0));
+};
+
+export { getTextResult, handleClearCacheUsers };
+Footer
+© 2024 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+attestation-project---search-js/src/components/Pagination/pagination.style.js at 00fd558e11c5296c780b71fd9342cc27ae861827 · DianaSemenova/attestation-project---search-js
+ 
