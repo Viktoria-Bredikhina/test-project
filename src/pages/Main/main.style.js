@@ -11,17 +11,17 @@ export const NoResultBlock = styled.div`
     justify-content: center;
 `;
 export const TextResult = styled.p`
-    font-size: 20px;
-    color: #fff;
-    line-height: 50px;
+    font-size: ${(props) => (props.$active ? '12px' : '20px')};
+    color: ${(props) => (props.$active ? '#b3adad' : ' #fff')};
+    line-height: ${(props) => (props.$active ? '40px' : ' 50px')};
     max-width: 800px;
     text-align: center;
 
     @media (max-width: 540px) {
-        font-size: 18px;
+        font-size: ${(props) => (props.$active ? '12px' : '18px')};
     }
-    @media (max-width: 370px) {
-        font-size: 14px;
-        line-height: 45px;
+    @media (max-width: 385px) {
+        font-size: ${(props) => (props.$active ? '12px' : '14px')};
+        line-height: ${(props) => (props.$active ? '20px' : ' 45px')};
     }
 `;

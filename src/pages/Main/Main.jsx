@@ -1,44 +1,53 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import * as S from './main.style';
 import Filter from '../../components/FilterBlock/Filter/Filter';
 import SearchNoResultSvg from '../../components/UI/Icons/Search/SearchNoResultSvg';
+import UsersList from '../../components/UsersBlock/Users/Users';
 import { useLazyGetUsersQuery } from '../../store/services/users';
-import { getTextResult } from '../../utils/helpers';
+import { getTextResult, handleClearCacheUsers } from '../../utils/helpers';
+import { fetchDataUsers } from '../../utils/fetchDataUser';
 
 export default function MainPage() {
-    const { paramsLogin, paramsSort, perPage, page } = useSelector(
+    const dispatch = useDispatch();
+    const { paramsLogin, paramsSort, pagination } = useSelector(
         (state) => state.users,
     );
     const [getUsers, { isLoading, isError, data }] = useLazyGetUsersQuery();
     const [textError, setTextError] = useState('');
 
-    const fetchDataUsers = async () => {
-        try {
-            await getUsers({
+    useEffect(() => {
+        if (
+            paramsLogin &&
+            paramsSort &&
+            pagination.perPage &&
+            pagination.page
+        ) {
+            fetchDataUsers(
                 paramsLogin,
                 paramsSort,
-                perPage,
-                page,
-            });
-        } catch (error) {
-            setTextError(error.message);
+                pagination,
+                getUsers,
+                setTextError,
+                dispatch,
+            );
         }
-    };
+    }, [paramsLogin, paramsSort, pagination.perPage, pagination.page]);
 
     useEffect(() => {
-        if (paramsLogin && paramsSort && perPage && page) {
-            fetchDataUsers();
+        if (!paramsLogin && (isError || data)) {
+            handleClearCacheUsers(dispatch);
         }
-    }, [paramsLogin, paramsSort, perPage, page]);
+    }, [paramsLogin, isError]);
 
     return (
         <S.App>
-            {data?.items.length > 0 && paramsLogin && <Filter />}
-            {(!data || data?.items?.length === 0 || !paramsLogin) && (
+            {(!data ||
+                data?.items?.length === 0 ||
+                data?.items?.length > 0) && (
                 <S.NoResultBlock>
-                    <S.TextResult>
+                    <S.TextResult $active={data?.items?.length > 0 && !isError}>
                         {getTextResult(
                             isError,
                             isLoading,
@@ -46,9 +55,18 @@ export default function MainPage() {
                             paramsLogin,
                             textError,
                         )}
-                        <SearchNoResultSvg />
+                        {!isLoading &&
+                            (!data?.items?.length > 0 || isError) && (
+                                <SearchNoResultSvg />
+                            )}
                     </S.TextResult>
                 </S.NoResultBlock>
+            )}
+
+            {data?.items.length > 1 && paramsLogin && !isError && <Filter />}
+
+            {paramsLogin && data?.items.length > 0 && !isError && (
+                <UsersList data={data} isError={isError} />
             )}
         </S.App>
     );

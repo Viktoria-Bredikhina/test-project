@@ -1,9 +1,7 @@
 import styled from 'styled-components';
 
 export const CloseSvg = styled.svg`
-
-    &:hover {
+    &:hover path {
         fill: #564499;
-        cursor: pointer;
     }
 `;

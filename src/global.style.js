@@ -68,7 +68,6 @@ body {
     -webkit-text-size-adjust: 100%;
     font-family: "StratosSkyeng", sans-serif;
     color: #000000;
-    overflow: auto;
     background-color: #271a58;   
 }
 
@@ -87,9 +86,6 @@ h5,
 h6 {
     font-size: inherit;
     font-weight: 400;
-}
-p {
-    max-width: 500px;
 }
 `;
 
